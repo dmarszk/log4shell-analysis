@@ -34,7 +34,7 @@ inspect_folder (){
 }
 inspect_jar_file(){
 	jar_file_location=$1
-	find=$(unzip -l "$jar_file_location" | grep -c "$TARGET_CLASS_NAME")
+	find=$(unzip -o -l "$jar_file_location" | grep -c "$TARGET_CLASS_NAME")
 	if [ $find -ne 0 ]
 	then
 		JAR_FOUND=1
@@ -43,7 +43,7 @@ inspect_jar_file(){
 		echo -e "\e[93m[+] Try to find the Maven artefact version...\e[0m"
 		rm -rf "$JAR_WORK_FOLDER" 2>/dev/null
 		mkdir "$JAR_WORK_FOLDER"
-		unzip -q -d "$JAR_WORK_FOLDER" "$jar_file_location"
+		unzip -o -q -d "$JAR_WORK_FOLDER" "$jar_file_location"
 		chmod -R +r "$JAR_WORK_FOLDER"
 		cd $JAR_WORK_FOLDER
 		for f in $(grep -r "groupId\s*=\s*org.apache.logging.log4j" *)
@@ -58,12 +58,12 @@ inspect_jar_file(){
 		rm -rf $JAR_WORK_FOLDER 2>/dev/null
 	fi
 	# Handle nested jar case
-	has_nested_jar=$(unzip -l "$jar_file_location" | grep "\.jar$" | grep -cv "Archive:")
+	has_nested_jar=$(unzip -o -l "$jar_file_location" | grep "\.jar$" | grep -cv "Archive:")
 	if [ $has_nested_jar -ne 0 ]
 	then
 		nestedjar_lib_name="$(basename "$jar_file_location")_$RANDOM"
 		mkdir -p "$NESTED_JAR_WORK_FOLDER/$nestedjar_lib_name"
-		unzip -q -d "$NESTED_JAR_WORK_FOLDER/$nestedjar_lib_name" "$jar_file_location"
+		unzip -o -q -d "$NESTED_JAR_WORK_FOLDER/$nestedjar_lib_name" "$jar_file_location"
 		chmod -R +r "$NESTED_JAR_WORK_FOLDER/$nestedjar_lib_name"
 		inspect_folder "$NESTED_JAR_WORK_FOLDER/$nestedjar_lib_name"
 	fi	
@@ -79,14 +79,14 @@ do
 	then
 		rm -rf $WORK_FOLDER 2>/dev/null
 		mkdir $WORK_FOLDER
-		unzip -q -d $WORK_FOLDER "$lib"
+		unzip -o -q -d $WORK_FOLDER "$lib"
 		chmod -R +r $WORK_FOLDER
 		for war_lib in $(find $WORK_FOLDER -type f -iname "*.war")
 		do
 			war_lib_name="$(basename "$war_lib")_$RANDOM"
 			war_lib_folder="$WORK_FOLDER/$war_lib_name"
 			mkdir "$war_lib_folder"
-			unzip -q -d "$war_lib_folder" "$war_lib"
+			unzip -o -q -d "$war_lib_folder" "$war_lib"
 			chmod -R +r "$war_lib_folder"
 		done
 		inspect_folder "$WORK_FOLDER"
@@ -98,7 +98,7 @@ do
 		war_lib_name="$(basename "$lib")_$RANDOM"
 		war_lib_folder=$WORK_FOLDER/$war_lib_name
 		mkdir -p "$war_lib_folder"
-		unzip -q -d "$war_lib_folder" "$lib"
+		unzip -o -q -d "$war_lib_folder" "$lib"
 		chmod -R +r "$war_lib_folder"
 		inspect_folder "$WORK_FOLDER"
 		rm -rf $WORK_FOLDER 2>/dev/null
